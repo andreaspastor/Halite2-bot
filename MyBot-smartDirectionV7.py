@@ -1,8 +1,8 @@
 import hlt
 import logging
 from collections import OrderedDict
-game = hlt.Game("MyBot-espionV8")
-logging.info("Starting MyBot-espionV8")
+game = hlt.Game("MyBot-equilibreV7")
+logging.info("Starting MyBot-equilibreV7")
 
 
 i = 0
@@ -25,21 +25,7 @@ while True:
     team_ships = game_map.get_me().all_ships()
     myId = game_map.get_me()
 
-    ship = team_ships[0]
-    entities_by_distance = game_map.nearby_entities_by_distance(ship)
-    entities_by_distance = OrderedDict(sorted(entities_by_distance.items(), key=lambda t: t[0]))
-    closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and not(entities_by_distance[distance][0] in team_ships)]
-    target_ship = closest_enemy_ships[0]
-    direction = ship.closest_point_to(target_ship)
-    navigate_command = ship.navigate(
-                direction,
-                game_map,
-                speed=int(hlt.constants.MAX_SPEED),
-                ignore_ships=True)
-
-    if navigate_command:
-        command_queue.append(navigate_command)
-    for x, ship in enumerate(team_ships[1:]):
+    for x, ship in enumerate(team_ships):
         if ship.docking_status != ship.DockingStatus.UNDOCKED:
             # Skip this ship
             continue
