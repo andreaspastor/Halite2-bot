@@ -1,8 +1,8 @@
 import hlt
 import logging
 from collections import OrderedDict
-game = hlt.Game("MyBot-equilibreV7")
-logging.info("Starting MyBot-equilibreV7")
+game = hlt.Game("MyBot-equilibreV6")
+logging.info("Starting MyBot-equilibreV6")
 
 
 i = 0
@@ -11,11 +11,6 @@ while True:
     game_map = game.update_map()
     command_queue = []
     
-    allPlanets = game_map.all_planets()
-    num_docking_spots_planets = {}
-    for planet in allPlanets:
-        num_docking_spots_planets[planet.id] = planet.num_docking_spots - len(planet._docked_ship_ids)
-
     if len(game_map.all_players()) > 2:
         dependOnEnemy = 1
         dependOnEnemy_rate = 1.2
@@ -55,11 +50,6 @@ while True:
                 command_queue.append(navigate_command)
         elif len(sum_empty_closest_planets) > 0 and len(closest_empty_planets) > dependOnEnemy:# moreShipThanEnemy and :
             target_planet = sum_empty_closest_planets[0]
-            i = 1
-            while num_docking_spots_planets[target_planet.id] <= 0 and len(sum_empty_closest_planets) > i:
-                target_planet = sum_empty_closest_planets[i]
-                i += 1
-            num_docking_spots_planets[target_planet.id] -= 1
             if ship.can_dock(target_planet):
                 command_queue.append(ship.dock(target_planet))
             else:
