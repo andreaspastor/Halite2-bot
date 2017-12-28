@@ -1,6 +1,13 @@
 from . import collision, entity
+import math
 
+def ccw(Ax,Ay,Bx,By,Cx,Cy):
+    return (Cy-Ay) * (Bx-Ax) > (By-Ay) * (Cx-Ax)
 
+# Return true if line segments AB and CD intersect
+def intersect(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy):
+    return ccw(Ax,Ay,Cx,Cy,Dx,Dy) != ccw(Bx,By,Cx,Cy,Dx,Dy) and ccw(Ax,Ay,Bx,By,Cx,Cy) != ccw(Ax,Ay,Bx,By,Dx,Dy)
+    
 class Map:
     """
     Map which houses the current game information/metadata.
@@ -144,6 +151,17 @@ class Map:
                 obstacles.append(foreign_entity)
         return obstacles
 
+    def ships_between(self, ship, distance, angle):
+        speed = distance if distance < 7 else 7
+        while True:
+            ship.next_x, ship.next_y = ship.x + speed * math.cos(math.radians(angle)), ship.y + math.sin(math.radians(angle))
+            for shipA in self._all_ships():
+                if shipA != ship and ((shipA.next_x - ship.next_x)**2 + (shipA.next_y - ship.next_y)**2) < 4 and intersect(ship.x, ship.y, ship.next_x, ship.next_y, shipA.x, shipA.y, shipA.next_x, shipA.next_y): #1.1 * 1.1
+                    angle -= 5
+                    break
+            else:
+                return angle
+        return angle
 
 class Player:
     """

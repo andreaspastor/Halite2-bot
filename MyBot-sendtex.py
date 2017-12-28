@@ -28,8 +28,9 @@ while True:
             if ship.can_dock(target_planet):
                 command_queue.append(ship.dock(target_planet))
             else:
+                direction = ship.closest_point_to(target_planet)
                 navigate_command = ship.navigate(
-                            ship.closest_point_to(target_planet),
+                            direction,
                             game_map,
                             speed=int(hlt.constants.MAX_SPEED),
                             ignore_ships=True)
@@ -40,15 +41,17 @@ while True:
         # FIND SHIP TO ATTACK!
         elif len(closest_enemy_ships) > 0:
             target_ship = closest_enemy_ships[0]
+            direction = ship.closest_point_to(target_ship)
             navigate_command = ship.navigate(
-                        ship.closest_point_to(target_ship),
+                        direction,
                         game_map,
                         speed=int(hlt.constants.MAX_SPEED),
                         ignore_ships=True)
 
             if navigate_command:
                 command_queue.append(navigate_command)
-
+        logging.info(str(ship.id) + ' : ' + str(ship.x) + ' ' + str(ship.y) + ' : ' + str(direction.x) + ' ' + str(direction.y))
     game.send_command_queue(command_queue)
+    logging.info(command_queue)
     # TURN END
 # GAME END

@@ -228,6 +228,8 @@ class Ship(Entity):
         self.id = ship_id
         self.x = x
         self.y = y
+        self.next_x = x
+        self.next_y = y
         self.owner = player_id
         self.radius = constants.SHIP_RADIUS
         self.health = hp
@@ -299,6 +301,8 @@ class Ship(Entity):
             else Ship if (ignore_ships and not ignore_planets) \
             else Planet if (ignore_planets and not ignore_ships) \
             else Entity
+        
+        angle = game_map.ships_between(self, distance, angle)
         if avoid_obstacles and game_map.obstacles_between(self, target, ignore):
             new_target_dx = math.cos(math.radians(angle + angular_step)) * distance
             new_target_dy = math.sin(math.radians(angle + angular_step)) * distance
