@@ -7,7 +7,24 @@ def ccw(Ax,Ay,Bx,By,Cx,Cy):
 # Return true if line segments AB and CD intersect
 def intersect(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy):
     return ccw(Ax,Ay,Cx,Cy,Dx,Dy) != ccw(Bx,By,Cx,Cy,Dx,Dy) and ccw(Ax,Ay,Bx,By,Cx,Cy) != ccw(Ax,Ay,Bx,By,Dx,Dy)
-    
+
+def islineintersect(line1, line2):
+    i1 = [min(line1[0][0], line1[1][0]), max(line1[0][0], line1[1][0])]
+    i2 = [min(line2[0][0], line2[1][0]), max(line2[0][0], line2[1][0])]
+    ia = [max(i1[0], i2[0]), min(i1[1], i2[1])]
+    if max(line1[0][0], line1[1][0]) < min(line2[0][0], line2[1][0]):
+        return False
+    m1 = (line1[1][1] - line1[0][1]) / (line1[1][0] - line1[0][0] + 1e-5)
+    m2 = (line2[1][1] - line2[0][1]) / (line2[1][0] - line2[0][0] + 1e-5)
+    if m1 == m2:
+        return False
+    b1 = line1[0][1] - m1 * line1[0][0]
+    b2 = line2[0][1] - m2 * line2[0][0]
+    x1 = (b2 - b1) / (m1 - m2)
+    if (x1 < max(i1[0], i2[0])) or (x1 > min(i1[1], i2[1])):
+        return False
+    return True
+
 class Map:
     """
     Map which houses the current game information/metadata.
@@ -156,7 +173,8 @@ class Map:
         while True:
             ship.next_x, ship.next_y = ship.x + speed * math.cos(math.radians(angle)), ship.y + math.sin(math.radians(angle))
             for shipA in self._all_ships():
-                if shipA != ship and ((shipA.next_x - ship.next_x)**2 + (shipA.next_y - ship.next_y)**2) < 4 and intersect(ship.x, ship.y, ship.next_x, ship.next_y, shipA.x, shipA.y, shipA.next_x, shipA.next_y): #1.1 * 1.1
+                distXa, distXb, distYa, distYb = ship.next_x - ship.x, shipA.next_x - shipA.y, ship.next_y - ship.y, shipA.next_y - shipA.y
+                if shipA != ship and ((shipA.next_x - ship.next_x)**2 + (shipA.next_y - ship.next_y)**2) < 4 and islineintersect([[ship.x, ship.y], [ship.next_x + 5*distXa, ship.next_y + 5*distYa]], [[shipA.x, shipA.y], [shipA.next_x + 5*distXb, shipA.next_y + 5*distYb]]): #1.1 * 1.1
                     angle -= 5
                     break
             else:

@@ -1,16 +1,16 @@
 import hlt
 import logging
 from collections import OrderedDict
-game = hlt.Game("MyBot-attStrongerV8")
-logging.info("Starting MyBot-attStrongerV8")
+game = hlt.Game("MyBot-V11")
+logging.info("Starting MyBot-V11")
 
-def bestOtherPlayer(players, myId):
+"""def bestOtherPlayer(players, myId):
     maxShip = -1
     for player in players:
         if player != myId and len(player.all_ships()) > maxShip:
             maxShip = len(player.all_ships())
             bestOtherPlayerId = player
-    return bestOtherPlayerId
+    return bestOtherPlayerId"""
 
 cpt = 0
 while cpt < 500:
@@ -18,7 +18,7 @@ while cpt < 500:
     command_queue = []
     myId = game_map.get_me()
     #if cpt % 5 == 0:
-    bestOtherPlayerId = bestOtherPlayer(game_map.all_players(), myId)
+    #bestOtherPlayerId = bestOtherPlayer(game_map.all_players(), myId)
 
     allPlanets = game_map.all_planets()
     num_docking_spots_planets = {}
@@ -36,22 +36,6 @@ while cpt < 500:
     team_ships = game_map.get_me().all_ships()
     team_ships_docked = [team_ships[x] for x in range(len(team_ships)) if team_ships[x].planet != None]
 
-    
-
-    ship = team_ships[0]
-    entities_by_distance = game_map.nearby_entities_by_distance(ship)
-    entities_by_distance = OrderedDict(sorted(entities_by_distance.items(), key=lambda t: t[0]))
-    closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and not(entities_by_distance[distance][0] in team_ships)]
-    target_ship = closest_enemy_ships[0]
-    direction = ship.closest_point_to(target_ship)
-    navigate_command = ship.navigate(
-                direction,
-                game_map,
-                speed=int(hlt.constants.MAX_SPEED),
-                ignore_ships=True)
-
-    if navigate_command:
-        command_queue.append(navigate_command)
     for x, ship in enumerate(team_ships[1:]):
         if ship.docking_status != ship.DockingStatus.UNDOCKED:
             # Skip this ship
@@ -63,7 +47,7 @@ while cpt < 500:
         sum_empty_closest_planets = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Planet) and ((entities_by_distance[distance][0].owner == myId and not entities_by_distance[distance][0].is_full()) or not entities_by_distance[distance][0].is_owned())]
         not_full_planets = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Planet) and entities_by_distance[distance][0].owner == myId and not entities_by_distance[distance][0].is_full()]
         closest_empty_planets = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Planet) and not entities_by_distance[distance][0].is_owned()]
-        closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and entities_by_distance[distance][0].planet != None and entities_by_distance[distance][0].owner == bestOtherPlayerId]
+        closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and not(entities_by_distance[distance][0] in team_ships) and entities_by_distance[distance][0].planet != None]
         #closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and not(entities_by_distance[distance][0] in team_ships)]
         moreShipThanEnemy = len(team_ships) > len(closest_enemy_ships)*1.1
         diffShipEnemy = (len(team_ships) > len(closest_enemy_ships) + 5) and (len(team_ships) > len(closest_enemy_ships)*dependOnEnemy_rate)
@@ -131,6 +115,22 @@ while cpt < 500:
             if navigate_command:
                 command_queue.append(navigate_command)
         logging.info(str(ship.x) + ' ' + str(ship.y) + ' : ' + str(direction.x) + ' ' + str(direction.y))
+
+    ship = team_ships[0]
+    entities_by_distance = game_map.nearby_entities_by_distance(ship)
+    entities_by_distance = OrderedDict(sorted(entities_by_distance.items(), key=lambda t: t[0]))
+    closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and not(entities_by_distance[distance][0] in team_ships)]
+    target_ship = closest_enemy_ships[0]
+    direction = ship.closest_point_to(target_ship)
+    navigate_command = ship.navigate(
+                direction,
+                game_map,
+                speed=int(hlt.constants.MAX_SPEED),
+                ignore_ships=True)
+
+    if navigate_command:
+        command_queue.append(navigate_command)
+
     game.send_command_queue(command_queue)
     logging.info(command_queue)
     # TURN END
