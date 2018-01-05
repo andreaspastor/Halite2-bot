@@ -56,11 +56,9 @@ while cpt < 500:
         if len(closest_enemy_ships) > 0 and diffShipEnemy:
             target_ship = closest_enemy_ships[0]
             direction = ship.closest_point_to(target_ship)
-            navigate_command = ship.navigate(
+            navigate_command = ship.move(
                         direction,
-                        game_map,
-                        speed=int(hlt.constants.MAX_SPEED),
-                        ignore_ships=True)
+                        game_map)
 
             if navigate_command:
                 command_queue.append(navigate_command)
@@ -75,11 +73,9 @@ while cpt < 500:
                 command_queue.append(ship.dock(target_planet))
             else:
                 direction = ship.closest_point_to(target_planet)
-                navigate_command = ship.navigate(
+                navigate_command = ship.move(
                             direction,
-                            game_map,
-                            speed=int(hlt.constants.MAX_SPEED),
-                            ignore_ships=False)
+                            game_map)
 
                 if navigate_command:
                     command_queue.append(navigate_command)
@@ -95,22 +91,16 @@ while cpt < 500:
                 command_queue.append(ship.dock(target_planet))
             else:
                 direction = ship.closest_point_to(target_planet)
-                navigate_command = ship.navigate(
+                navigate_command = ship.move(
                             direction,
-                            game_map,
-                            speed=int(hlt.constants.MAX_SPEED),
-                            ignore_ships=False)
+                            game_map)
 
                 if navigate_command:
                     command_queue.append(navigate_command)
         elif len(closest_enemy_ships) > 0:
             target_ship = closest_enemy_ships[0]
             direction = ship.closest_point_to(target_ship)
-            navigate_command = ship.navigate(
-                        direction,
-                        game_map,
-                        speed=int(hlt.constants.MAX_SPEED),
-                        ignore_ships=True)
+            navigate_command = ship.move(direction,game_map)
 
             if navigate_command:
                 command_queue.append(navigate_command)
@@ -122,11 +112,9 @@ while cpt < 500:
     closest_enemy_ships = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Ship) and not(entities_by_distance[distance][0] in team_ships)]
     target_ship = closest_enemy_ships[0]
     direction = ship.closest_point_to(target_ship)
-    navigate_command = ship.navigate(
+    navigate_command = ship.move(
                 direction,
-                game_map,
-                speed=int(hlt.constants.MAX_SPEED),
-                ignore_ships=True)
+                game_map)
 
     if navigate_command:
         command_queue.append(navigate_command)
