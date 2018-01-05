@@ -168,7 +168,7 @@ class Map:
                 obstacles.append(foreign_entity)
         return obstacles
 
-    def ships_between(self, ship, distance, angle):
+    """def ships_between(self, ship, distance, angle):
         speed = distance if distance < 7 else 7
         while True:
             ship.next_x, ship.next_y = ship.x + speed * math.cos(math.radians(angle)), ship.y + math.sin(math.radians(angle))
@@ -179,7 +179,7 @@ class Map:
                     break
             else:
                 return angle
-        return angle
+        return angle"""
 
 class Player:
     """

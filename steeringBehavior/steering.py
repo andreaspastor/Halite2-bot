@@ -19,6 +19,8 @@ class Ship:
 		self.y = y
 		self.vx = r.random()
 		self.vy = r.random()
+		self.vvx = 0
+		self.vvy = 0
 		self.color = color
 
 	def calculate_distance_between(self, target):
@@ -35,17 +37,17 @@ class Ship:
 		return Position(x, y)
 
 	def move(self, target, ships):
-		"""distance = self.calculate_distance_between(target)
+		distance = self.calculate_distance_between(target)
 		angle = self.calculate_angle_between(target)
-		speed = 0.1 if distance > 0.1 else distance
-		self.vx = math.cos(math.radians(angle))*speed
-		self.vy = math.sin(math.radians(angle))*speed
-		self.x, self.y = self.x + self.vx, self.y + self.vy"""
+		speed = 7 if distance > 7 else distance
+		self.vvx = math.cos(math.radians(angle))*speed
+		self.vvy = math.sin(math.radians(angle))*speed
+
 		cptShip, alignX, alignY = 0, 0, 0
 		for ship in ships:
 			if ship != self:
-				alignX += ship.vx
-				alignY += ship.vy
+				alignX += ship.vvx
+				alignY += ship.vvy
 				cptShip += 1
 		alignX /= cptShip
 		alignY /= cptShip
@@ -71,7 +73,7 @@ class Ship:
 		val = False
 		for ship in ships:
 			if ship != self:
-				if self.calculate_distance_between(ship) < 6:
+				if self.calculate_distance_between(ship) < 4:
 					sepX += ship.x - self.x
 					sepY += ship.y - self.y
 					cptShip += 1
@@ -83,7 +85,7 @@ class Ship:
 			sepX /= norme
 			sepY /= norme
 		
-		self.vx, self.vy = self.vx + sepX + coheX + alignX, self.vy + sepY + coheY + alignY
+		self.vx, self.vy = sepX + coheX + alignX, sepY + coheY + alignY
 		norme = math.sqrt(self.vx**2 + self.vy**2) + 1e-5
 		self.vx /= norme
 		self.vy /= norme
@@ -92,6 +94,14 @@ class Ship:
 def drawShip(image,x,y,c):
 	x, y = int(x), int(y)
 	image[x*size-5:x*size+5,y*size-5:y*size+5,:] = c
+	return image
+
+def drawObstacle(image, x, y, r):
+	r2 = r**2
+	for i in range(-r,r+1):
+		for j in range(-r,r+1):
+			if i**2 + j**2 < r2:
+				image[x+i,y+j,:] = [255,255,255]
 	return image
 
 def drawShips(image, ships):
@@ -115,11 +125,13 @@ ship3 = Ship(120,60,[0,0,255])
 
 ships = [ship1, ship2, ship3]
 
+image = drawObstacle(image, 250,350,40)
 while True:
 	image2 = drawShips(image, ships)
 	ships = updateShips(ships)
 	cv2.imshow('zone',image2)
-	k = cv2.waitKey(1) & 0xff
+	print(ship1.x, ship1.y)
+	k = cv2.waitKey(5) & 0xff
 	if k == ord('q'):
 		cv2.destroyAllWindows()
 		break

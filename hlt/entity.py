@@ -228,8 +228,6 @@ class Ship(Entity):
         self.id = ship_id
         self.x = x
         self.y = y
-        self.next_x = x
-        self.next_y = y
         self.owner = player_id
         self.radius = constants.SHIP_RADIUS
         self.health = hp
@@ -271,6 +269,62 @@ class Ship(Entity):
         """
         return "u {}".format(self.id)
 
+    def move(self, target, ships):
+        """distance = self.calculate_distance_between(target)
+        angle = self.calculate_angle_between(target)
+        speed = 0.1 if distance > 0.1 else distance
+        self.vx = math.cos(math.radians(angle))*speed
+        self.vy = math.sin(math.radians(angle))*speed
+        self.x, self.y = self.x + self.vx, self.y + self.vy"""
+        cptShip, alignX, alignY = 0, 0, 0
+        for ship in ships:
+            if ship != self:
+                alignX += ship.vx
+                alignY += ship.vy
+                cptShip += 1
+        alignX /= cptShip
+        alignY /= cptShip
+        norme = math.sqrt(alignX**2 + alignY**2) + 1e-5
+        alignX /= norme
+        alignY /= norme
+
+        cptShip, coheX, coheY = 0, 0, 0
+        for ship in ships:
+            if ship != self:
+                coheX += ship.x
+                coheY += ship.y
+                cptShip += 1
+        coheX /= cptShip
+        coheY /= cptShip
+        coheX -= self.x
+        coheY -= self.y
+        norme = math.sqrt(coheX**2 + coheY**2) + 1e-5
+        coheX /= norme
+        coheY /= norme
+
+        cptShip, sepX, sepY = 0, 0, 0
+        val = False
+        for ship in ships:
+            if ship != self:
+                if self.calculate_distance_between(ship) < 6:
+                    sepX += ship.x - self.x
+                    sepY += ship.y - self.y
+                    cptShip += 1
+                    val = True
+        if val:
+            sepX /= -cptShip
+            sepY /= -cptShip
+            norme = math.sqrt(sepX**2 + sepY**2) + 1e-5
+            sepX /= norme
+            sepY /= norme
+        
+        vx, vy = sepX + coheX + alignX, sepY + coheY + alignY
+        norme = math.sqrt(vx**2 + vy**2) + 1e-5
+        vx /= norme
+        vy /= norme
+        return self.thrust(speed, angle)
+        #self.x, self.y = self.x + self.vx, self.y + self.vy
+
     def navigate(self, target, game_map, speed, avoid_obstacles=True, max_corrections=90, angular_step=1,
                  ignore_ships=False, ignore_planets=False):
         """
@@ -302,7 +356,7 @@ class Ship(Entity):
             else Planet if (ignore_planets and not ignore_ships) \
             else Entity
         
-        angle = game_map.ships_between(self, distance, angle)
+        #angle = game_map.ships_between(self, distance, angle)
         if avoid_obstacles and game_map.obstacles_between(self, target, ignore):
             new_target_dx = math.cos(math.radians(angle + angular_step)) * distance
             new_target_dy = math.sin(math.radians(angle + angular_step)) * distance
